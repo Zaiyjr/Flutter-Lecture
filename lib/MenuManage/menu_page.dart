@@ -22,7 +22,7 @@ final List<String> items = [
 
 // Menu icons
 final double iconSize = 60.0;
-final Color iconColor = Colors.orange;
+final Color iconColor = Colors.green.shade900;
 final List<Icon> icons = [
   Icon(Icons.ac_unit, size: iconSize, color: iconColor),
   Icon(Icons.category, size: iconSize, color: iconColor),
@@ -39,11 +39,11 @@ final List<Widget> routePages = [
   UnitPage(),
   CategoryPage(),
   ProductPage(),
-  Supplier_Page(),
-  Employee_Page(),
-  Customer_Page(),
-  Exchange_Page(),
-  About_Page()
+  SupplierPage(),
+  EmployeePage(),
+  CustomerPage(),
+  ExchangePage(),
+  AboutPage()
   // Additional pages can be added here
 ];
 
@@ -73,9 +73,9 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Menu Management", style: TextStyle(color: Colors.black87),),
+        title: const Text("ການຈັດການເມນູ", style: TextStyle(color: Colors.white,fontSize: 32)),
         centerTitle: true,
-        backgroundColor: Colors.orange.shade700,
+        backgroundColor: Colors.green.shade700,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -94,7 +94,7 @@ class _MenuPageState extends State<MenuPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: Colors.white,
-                  border: Border.all(color: Colors.orange, width: 2),
+                  border: Border.all(color: Colors.green, width: 2),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.shade500,

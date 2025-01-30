@@ -1,74 +1,117 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:my_app/Login/loginMain.dart';
+
+class Myhomepage extends StatefulWidget {
+  const Myhomepage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyWidgetState();
+  State<Myhomepage> createState() => _MyhomepageState();
 }
 
-class _MyWidgetState extends State<MyHomePage> {
-  String txt = "ສະແດງຕົວເລກ";
-  int _count = 0;
+class _MyhomepageState extends State<Myhomepage> {
+   bool isConnectedToInternet = false;
+  StreamSubscription? _internetConnectionSubscription;
+  Timer? _navigationTimer;
 
-  void IncrementNumber(){
-    setState(() { 
-      _count +=5;
+  @override
+   void initState() {
+    super.initState();
+    _internetConnectionSubscription = InternetConnection()
+        .onStatusChange
+        .listen((event) {
+      print(event);
+      switch (event) {
+        case InternetStatus.connected:
+          setState(() {
+            isConnectedToInternet = true;
+          });
+          _showConnectionDialog("Connected", "You are connected to the Internet.", true);
+          break;
+        case InternetStatus.disconnected:
+          setState(() {
+            isConnectedToInternet = false;
+          });
+          _showConnectionDialog("Disconnected", "You are not connected to the Internet.", false);
+          break;
+        default:
+          setState(() {
+            isConnectedToInternet = false;
+          });
+          _showConnectionDialog("Unknown", "Connection status is unknown.", false);
+          break;
+      }
     });
   }
 
-  void DecrementNumber(){
-    setState(() { 
-      _count --;
+  void _showConnectionDialog(String title, String message, bool isConnected) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: isConnected
+              ? [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _navigateToLoginWithDelay();
+                    },
+                    child: const Text("OK"),
+                  ),
+                ]
+              : [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Retry"),
+                  ),
+                ],
+        );
+      },
+    );
+  }
+
+  void _navigateToLoginWithDelay() {
+    _cancelNavigation(); // Cancel any existing timer before starting a new one.
+    _navigationTimer = Timer(const Duration(seconds: 5), () {
+      if (isConnectedToInternet) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (c) => const Loginmain()),
+        );
+      }
     });
+  }
+
+  void _cancelNavigation() {
+    _navigationTimer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _internetConnectionSubscription?.cancel();
+    _navigationTimer?.cancel();
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.menu,
-              color: Colors.blue.shade400,
-            )),
-        backgroundColor: Colors.red.shade500,
-        title: Text(
-          'Cafe Shop',
-          style: TextStyle(fontSize: 24.0, color: Colors.blue.shade400),
+      body: SizedBox(
+        width: MediaQuery.sizeOf(context).width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(isConnectedToInternet ? Icons.wifi : Icons.wifi_off,size: 50,color: isConnectedToInternet ? Colors.green : Colors.red),
+            Text(isConnectedToInternet ? "ທ່ານເຊື່ອມຕໍ່ອິນເຕິເນັດແລ້ວ" : "ທ່ານຂາດການເຊື່ອມຕໍ່ອິນເຕິເນັດ"),
+          ],
         ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(colors: [
-            Colors.yellow.shade400,
-            Colors.blue.shade400,
-          ],radius: 1
-          )
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "$txt",
-                style: TextStyle(fontSize: 48, color: Colors.blue.shade400),
-              ),
-              Text(
-                '$_count',
-                style: TextStyle(fontSize: 48, color: Colors.blue.shade400),
-              )
-            ],
-          ),
-        ),
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          IncrementNumber();
-
-        },
-        child: Icon(Icons.add),
       ),
     );
   }
